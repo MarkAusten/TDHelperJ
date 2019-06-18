@@ -32,7 +32,7 @@ class ShipPanel extends BaseCriteriaPanel
 
         this.ui = ui;
 
-        initGUI();
+        initGui();
         populateGuiFromSettings();
     }
 
@@ -90,7 +90,7 @@ class ShipPanel extends BaseCriteriaPanel
     /**
      * Set up the panel.
      */
-    private void initGUI()
+    private void initGui()
     {
         setColumnWidths();
 
@@ -124,7 +124,7 @@ class ShipPanel extends BaseCriteriaPanel
         Utils.rightAlignTextIn(this);
     }
 
-    private void populateGuiFromSettings()
+    void populateGuiFromSettings()
     {
         setFloatSetting(txtLaden, TDGUI.settings.shipLaden);
         setFloatSetting(txtUnladen, TDGUI.settings.shipUnladen);
@@ -134,7 +134,7 @@ class ShipPanel extends BaseCriteriaPanel
         setIntegerSetting(txtCapacity, TDGUI.settings.shipCapacity);
 
         setStringSetting(txtPads, TDGUI.settings.shipPads);
-        setStringSetting(txtSelectedShip, TDGUI.settings.selectedShip);
+        setStringSetting(txtSelectedShip, TDGUI.settings.shipSelected);
     }
 
     public void populateSettingsFromGui()
@@ -145,7 +145,7 @@ class ShipPanel extends BaseCriteriaPanel
         TDGUI.settings.shipLaden = Utils.convertStringToFloat(txtLaden.getText());
         TDGUI.settings.shipUnladen = Utils.convertStringToFloat(txtUnladen.getText());
         TDGUI.settings.shipPads = txtPads.getText();
-        TDGUI.settings.selectedShip = txtSelectedShip.getText();
+        TDGUI.settings.shipSelected = txtSelectedShip.getText();
     }
 
     private void setColumnWidths()

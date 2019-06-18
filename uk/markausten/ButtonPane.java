@@ -16,7 +16,7 @@ class ButtonPane extends JPanel
     {
         this.ui = ui;
 
-        addComponentsToPane();
+        initGui();
         populateDropDownLists();
     }
 
@@ -43,7 +43,7 @@ class ButtonPane extends JPanel
     /**
      * Add the GUI components to the pane.
      */
-    private void addComponentsToPane()
+    private void initGui()
     {
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.WHITE));
 
@@ -103,7 +103,7 @@ class ButtonPane extends JPanel
     }
 
     /**
-     * @param combobox The combox box with the system/station.
+     * @param combobox The combo box with the system/station.
      * @return The selected system/station, if any, with any marked station identifiers removed.
      */
     private String removeMarkedStationCharacters(AutoCompleteJComboBox combobox)
@@ -136,16 +136,12 @@ class ButtonPane extends JPanel
         switch (mode.toLowerCase())
         {
             case Constants.REQUIRED_BUTTON_MODE_CANCEL:
-                SwingUtilities.invokeLater(() -> {
-                    btnStart.setText(Constants.BUTTON_CAPTION_CANCEL);
-                });
+                SwingUtilities.invokeLater(() -> btnStart.setText(Constants.BUTTON_CAPTION_CANCEL));
 
                 break;
 
             case Constants.REQUIRED_BUTTON_MODE_SETTINGS:
-                SwingUtilities.invokeLater(() -> {
-                    btnStart.setText(Constants.BUTTON_CAPTION_SAVE_SETTINGS);
-                });
+                SwingUtilities.invokeLater(() -> btnStart.setText(Constants.BUTTON_CAPTION_SAVE_SETTINGS));
 
                 break;
 

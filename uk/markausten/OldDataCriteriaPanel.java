@@ -33,7 +33,7 @@ class OldDataCriteriaPanel extends BaseCriteriaPanel
 
         this.ui = ui;
 
-        initGUI();
+        initGui();
         populateGuiFromSettings();
     }
 
@@ -98,7 +98,7 @@ class OldDataCriteriaPanel extends BaseCriteriaPanel
     /**
      * Set up the panel.
      */
-    private void initGUI()
+    private void initGui()
     {
         this.setBorder(BorderFactory.createMatteBorder(0, 1, 0, 1, Color.WHITE));
 
@@ -129,7 +129,7 @@ class OldDataCriteriaPanel extends BaseCriteriaPanel
         Utils.rightAlignTextIn(this);
     }
 
-    private void populateGuiFromSettings()
+    void populateGuiFromSettings()
     {
         setFloatSetting(txtNearLy, TDGUI.settings.oldDataNearLy);
         setIntegerSetting(txtMaxLs, TDGUI.settings.oldDataMaxLs);

@@ -1,5 +1,8 @@
 package uk.markausten;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -12,6 +15,8 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -375,5 +380,50 @@ class Utils
     public enum ScrollDirection
     {
         UP, DOWN
+    }
+
+    static JSONObject getJsonObject(JSONObject json, String key)
+    {
+        JSONObject result = json;
+
+        for(String k: key.split("\\."))
+        {
+            result = (JSONObject)result.get(k);
+
+            if (result == null)
+            {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * @param shipType The internal ship type as specified by FDev.
+     * @return The ship json object.
+     */
+    static JSONObject getBaseShipData(String shipType)
+    {
+        JSONObject ship = null;
+
+        try
+        {
+            // Get a reference to the base ships resource file.
+            InputStream resource = TDGUI.class.getResourceAsStream("/base_ships.json");
+
+            if (resource != null)
+            {
+                // Look up the internal ship type in the  resource and get the game ship type.
+                JSONObject json = (JSONObject) (new JSONParser().parse(new InputStreamReader(resource)));
+                ship = Utils.getJsonObject(json, "ships." + shipType);
+            }
+        }
+        catch (Exception e)
+        {
+            LogClass.log.severe(e.getMessage());
+        }
+
+        return ship;
     }
 }

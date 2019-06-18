@@ -32,7 +32,7 @@ class TabPanel extends JPanel
     TabPanel(MainPanel ui)
     {
         this.ui = ui;
-        initGUI();
+        initGui();
     }
 
     /**
@@ -76,7 +76,7 @@ class TabPanel extends JPanel
     /**
      * Set up the panel.
      */
-    private void initGUI()
+    private void initGui()
     {
         setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.WHITE));
 
@@ -126,6 +126,5 @@ class TabPanel extends JPanel
         addListeners();
 
         btnShips.setEnabled(false);
-        btnCmdr.setEnabled(false);
     }
 }

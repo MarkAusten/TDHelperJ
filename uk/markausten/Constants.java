@@ -2,6 +2,7 @@ package uk.markausten;
 
 class Constants
 {
+    static final String FILE_CHOOSER_CAPTION_NET_LOGS = "Select Net Logs Folder";
     static final String BUTTON_CAPTION_BUY = "Buy";
     static final String BUTTON_CAPTION_CANCEL = "Cancel";
     static final String BUTTON_CAPTION_CMDR = "CMDR";
@@ -93,7 +94,7 @@ class Constants
     static final String LABEL_CAPTION_PRUNE_SCORE = "Prune Score";
     static final String LABEL_CAPTION_RARE = "Rare";
     static final String LABEL_CAPTION_RARE_TYPE = "Rare Type";
-    static final String LABEL_CAPTION_REBUY = "Rebuy percentage";
+    static final String LABEL_CAPTION_REBUY = "Rebuy";
     static final String LABEL_CAPTION_REFUEL_JUMPS = "Refuel jumps";
     static final String LABEL_CAPTION_RESULTS = "Results";
     static final String LABEL_CAPTION_ROUTES = "Routes";
@@ -101,6 +102,7 @@ class Constants
     static final String LABEL_CAPTION_SEARCH_DISTANCE_LY = "Search distance";
     static final String LABEL_CAPTION_SELECTED_SHIP = "Selected Ship";
     static final String LABEL_CAPTION_SHIP_VENDOR_HINT = "Press start to display the list of ships available at the selected station";
+    static final String LABEL_CAPTION_COMMANDER_HINT = "Press start to retrieve the commander profile.";
     static final String LABEL_CAPTION_SORT_RESULTS_BY = "Sort results by";
     static final String LABEL_CAPTION_SOURCE = "Source";
     static final String LABEL_CAPTION_START_JUMPS = "Start Jumps";
@@ -144,5 +146,6 @@ class Constants
     static final String STRING_PRICE = "Price";
     static final String STRING_SELL = "Sell";
     static final String STRING_SUPPLY = "Supply";
+    static final String STRING_READY = "Ready";
 
 }

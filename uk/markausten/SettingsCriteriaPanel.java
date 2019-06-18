@@ -1,6 +1,7 @@
 package uk.markausten;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.List;
 
 class SettingsCriteriaPanel extends BaseCriteriaPanel
@@ -22,16 +23,106 @@ class SettingsCriteriaPanel extends BaseCriteriaPanel
     private JTextField txtRunParameters = new JTextField();
     private NumberField txtRebuy = new NumberField();
 
-    private JComboBox cboVerbosity = new JComboBox();
+    private JComboBox<String> cboVerbosity = new JComboBox<>();
+
+    private JButton btnFolder = new JButton("...");
 
     /**
      * constructor.
      */
-    public SettingsCriteriaPanel(MainPanel ui)
+    SettingsCriteriaPanel(MainPanel ui)
     {
         super();
 
         this.ui = ui;
+
+        initGui();
+        populateGuiFromSettings();
+        addListeners();
+    }
+
+    /**
+     * Add any listeners.
+     */
+    private void addListeners()
+    {
+        chkDisableNetLogs.addActionListener(e -> setNetLogsEnabled());
+    }
+
+    /**
+     * @return The correct progress setting.
+     */
+    boolean getProgress()
+    {
+        return chkProgress.isSelected();
+    }
+
+    /**
+     * @return The correct summary setting.
+     */
+    boolean getSummary()
+    {
+        return chkSummary.isSelected();
+    }
+
+    /**
+     * @return Get the selected verbosity.
+     */
+    String getVerbosity()
+    {
+        return (String)cboVerbosity.getSelectedItem();
+    }
+
+    /**
+     * Set the enabled state of the net log ccontrols.
+     */
+    private void setNetLogsEnabled()
+    {
+        boolean isEnabled = !chkDisableNetLogs.isSelected();
+
+        txtNetLogsPath.setEnabled(isEnabled);
+        btnFolder.setEnabled(isEnabled);
+    }
+
+    private JPanel createPanel1()
+    {
+        JPanel panel = new JPanel(new GridBagLayout());
+
+        panel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 1, Color.WHITE));
+
+        addComponentToPanel(panel, lblNetLogsPath, 0, 0, "EAST");
+        addComponentToPanel(panel, lblRunParameters, 0, 1, "EAST");
+        addComponentToPanel(panel, txtNetLogsPath, 1, 0, "WEST");
+        addComponentToPanel(panel, txtRunParameters, 1, 1, "WEST");
+        addComponentToPanel(panel, btnFolder, 4, 0, "WEST");
+
+        return panel;
+    }
+
+    private JPanel createPanel2()
+    {
+        JPanel panel = new JPanel(new GridBagLayout());
+
+        addComponentToPanel(panel, chkDisableAutoUpdate, 0, 0, "WEST");
+        addComponentToPanel(panel, chkDisableNetLogs, 0, 1, "WEST");
+        addComponentToPanel(panel, chkProgress, 0, 2, "WEST");
+        addComponentToPanel(panel, chkSummary, 0, 3, "WEST");
+
+        return panel;
+    }
+
+    private JPanel createPanel3()
+    {
+        JPanel panel = new JPanel(new GridBagLayout());
+
+        panel.setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, Color.WHITE));
+
+        addComponentToPanel(panel, lblRebuy, 0, 0, "EAST");
+        addComponentToPanel(panel, lblVerbosity, 0, 1, "EAST");
+        addComponentToPanel(panel, txtRebuy, 1, 0, "EAST");
+        addComponentToPanel(panel, cboVerbosity, 1, 1, "EAST");
+
+        return panel;
     }
 
     @Override
@@ -42,21 +133,134 @@ class SettingsCriteriaPanel extends BaseCriteriaPanel
         return command;
     }
 
+    /**
+     * Set up the panel.
+     */
+    private void initGui()
+    {
+        setBorder(BorderFactory.createMatteBorder(0, 1, 0, 1, Color.WHITE));
+
+        setLayout(new GridBagLayout());
+
+        setComponentWidths();
+
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 3;
+        gbc.gridheight = 1;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+
+        this.add(createPanel1(), gbc);
+
+        gbc.gridx = 4;
+        gbc.gridheight = 2;
+        gbc.gridwidth = 1;
+
+        this.add(createPanel2(), gbc);
+
+        gbc.gridx = 5;
+
+        this.add(createPanel3(), gbc);
+
+        gbc.gridx = 6;
+
+        Utils.rightAlignTextIn(this);
+
+        txtNetLogsPath.setEditable(false);
+
+        btnFolder.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+
+            String selectedFolder = txtNetLogsPath.getText();
+
+            if (selectedFolder == null || selectedFolder.isEmpty())
+            {
+                selectedFolder = ".";
+            }
+
+            chooser.setCurrentDirectory(new java.io.File(selectedFolder));
+
+            chooser.setDialogTitle(Constants.FILE_CHOOSER_CAPTION_NET_LOGS);
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(false);
+
+            if (chooser.showOpenDialog(TDGUI.frame) == JFileChooser.APPROVE_OPTION)
+            {
+                selectedFolder = chooser
+                        .getSelectedFile()
+                        .toString();
+
+                selectedFolder = selectedFolder.replace("/./", "/");
+
+                txtNetLogsPath.setText(selectedFolder);
+            }
+        });
+
+        cboVerbosity.addItem("");
+        cboVerbosity.addItem("-v");
+        cboVerbosity.addItem("-vv");
+        cboVerbosity.addItem("-vvv");
+    }
+
+    void populateGuiFromSettings()
+    {
+        setStringSetting(txtNetLogsPath, TDGUI.settings.settingsNetLogPath);
+        setStringSetting(txtRunParameters, TDGUI.settings.settingsRunParams);
+        setFloatSetting(txtRebuy, TDGUI.settings.settingsRebuy);
+        setBooleanSetting(chkDisableAutoUpdate, TDGUI.settings.settingsDisableAutoupdate);
+        setBooleanSetting(chkDisableNetLogs, TDGUI.settings.settingsDisableNetLogs);
+        setBooleanSetting(chkProgress, TDGUI.settings.settingsProgress);
+        setBooleanSetting(chkSummary, TDGUI.settings.settingsSummary);
+
+        cboVerbosity.setSelectedItem(TDGUI.settings.settingsVerbosity);
+    }
+
+    public void populateSettingsFromGui()
+    {
+        TDGUI.settings.settingsNetLogPath = txtNetLogsPath.getText();
+        TDGUI.settings.settingsRunParams = txtRunParameters.getText();
+        TDGUI.settings.settingsRebuy = Utils.convertStringToFloat(txtRebuy.getText());
+        TDGUI.settings.settingsDisableAutoupdate = chkDisableAutoUpdate.isSelected();
+        TDGUI.settings.settingsDisableNetLogs = chkDisableNetLogs.isSelected();
+        TDGUI.settings.settingsProgress = chkProgress.isSelected();
+        TDGUI.settings.settingsSummary = chkSummary.isSelected();
+
+        TDGUI.settings.settingsVerbosity = (String) cboVerbosity.getSelectedItem();
+    }
+
+    @Override
+    public void postProcessingHook()
+    {
+        checkSettingsSanity();
+    }
+
+    @Override
+    public void preProcessingHook()
+    {
+        checkSettingsSanity();
+    }
+
+    /**
+     * Check the validity of the settings.
+     */
+    private void checkSettingsSanity()
+    {
+
+    }
+
     @Override
     String requiredButtonMode()
     {
         return Constants.REQUIRED_BUTTON_MODE_SETTINGS;
     }
 
-    @Override
-    public void preProcessingHook()
+    private void setComponentWidths()
     {
-        //
-    }
+        txtNetLogsPath.setColumns(32);
+        txtRunParameters.setColumns(32);
 
-    @Override
-    public void postProcessingHook()
-    {
-        super.postProcessingHook();
+        txtRebuy.setColumns(6);
     }
 }

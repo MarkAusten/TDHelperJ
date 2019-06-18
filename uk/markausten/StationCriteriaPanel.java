@@ -19,7 +19,7 @@ class StationCriteriaPanel extends BaseCriteriaPanel
 
         this.ui = ui;
 
-        initGUI();
+        initGui();
     }
 
     @Override
@@ -37,7 +37,7 @@ class StationCriteriaPanel extends BaseCriteriaPanel
     /**
      * Set up the panel.
      */
-    private void initGUI()
+    private void initGui()
     {
         setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, Color.WHITE));
 

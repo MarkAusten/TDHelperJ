@@ -18,13 +18,13 @@ class ShipVendorCriteriaPanel extends BaseCriteriaPanel
 
         this.ui = ui;
 
-        initGUI();
+        initGui();
     }
 
     /**
      * Set up the panel.
      */
-    private void initGUI()
+    private void initGui()
     {
         setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, Color.WHITE));
 

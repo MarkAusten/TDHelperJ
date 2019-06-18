@@ -70,7 +70,7 @@ class RunCriteriaPanel extends BaseCriteriaPanel
 
         this.ui = ui;
 
-        initGUI();
+        initGui();
         populateGuiFromSettings();
     }
 
@@ -222,7 +222,7 @@ class RunCriteriaPanel extends BaseCriteriaPanel
     /**
      * Set up the panel.
      */
-    private void initGUI()
+    private void initGui()
     {
         setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, Color.WHITE));
 
@@ -292,7 +292,7 @@ class RunCriteriaPanel extends BaseCriteriaPanel
         Utils.rightAlignTextIn(this);
     }
 
-    private void populateGuiFromSettings()
+    void populateGuiFromSettings()
     {
         setBooleanSetting(chkBlackMarket, TDGUI.settings.runBlackMarket);
         setBooleanSetting(chkDirect, TDGUI.settings.runDirect);

@@ -34,7 +34,7 @@ class NavigationCriteriaPanel extends BaseCriteriaPanel
 
         this.ui = ui;
 
-        initGUI();
+        initGui();
         populateGuiFromSettings();
     }
 
@@ -87,6 +87,7 @@ class NavigationCriteriaPanel extends BaseCriteriaPanel
 
         return panel;
     }
+
     @Override
     public List<String> getCommand(List<String> command)
     {
@@ -110,7 +111,7 @@ class NavigationCriteriaPanel extends BaseCriteriaPanel
     /**
      * Set up the panel.
      */
-    private void initGUI()
+    private void initGui()
     {
         this.setBorder(BorderFactory.createMatteBorder(0, 1, 0, 1, Color.WHITE));
 
@@ -145,7 +146,7 @@ class NavigationCriteriaPanel extends BaseCriteriaPanel
         Utils.rightAlignTextIn(this);
     }
 
-    private void populateGuiFromSettings()
+    void populateGuiFromSettings()
     {
         setFloatSetting(txtJumpRangeLy, TDGUI.settings.navJumpRangeLy);
         setIntegerSetting(txtRefuel, TDGUI.settings.navRefuel);

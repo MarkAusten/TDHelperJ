@@ -49,7 +49,7 @@ class BuyCriteriaPanel extends BaseCriteriaPanel
 
         this.ui = ui;
 
-        initGUI();
+        initGui();
         populateGuiFromSettings();
     }
 
@@ -99,7 +99,7 @@ class BuyCriteriaPanel extends BaseCriteriaPanel
     /**
      * Set up the panel.
      */
-    private void initGUI()
+    private void initGui()
     {
         setBorder(BorderFactory.createMatteBorder(0, 1, 0, 1, Color.WHITE));
 
@@ -161,21 +161,6 @@ class BuyCriteriaPanel extends BaseCriteriaPanel
         return Constants.REQUIRED_BUTTON_MODE_BUY;
     }
 
-    private JPanel createPanel1()
-    {
-        JPanel panel = new JPanel(new GridBagLayout());
-
-        panel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 1, Color.WHITE));
-
-        addComponentToPanel(panel, lblAvoid, 0, 0, "EAST");
-        addComponentToPanel(panel, lblCommodity, 0, 1, "EAST");
-        addComponentToPanel(panel, txtAvoid, 1, 0, "WEST");
-        addComponentToPanel(panel, txtCommodity, 1, 1, "WEST");
-        addComponentToPanel(panel, btnSelection, 4, 1, "WEST");
-
-        return panel;
-    }
-
     private void setComponentWidths()
     {
         txtAvoid.setColumns(32);
@@ -192,6 +177,21 @@ class BuyCriteriaPanel extends BaseCriteriaPanel
 
 //        btnSelection.setPreferredSize(new Dimension(26, 26));
 //        btnSelection.setMaximumSize(btnSelection.getPreferredSize());
+    }
+
+    private JPanel createPanel1()
+    {
+        JPanel panel = new JPanel(new GridBagLayout());
+
+        panel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 1, Color.WHITE));
+
+        addComponentToPanel(panel, lblAvoid, 0, 0, "EAST");
+        addComponentToPanel(panel, lblCommodity, 0, 1, "EAST");
+        addComponentToPanel(panel, txtAvoid, 1, 0, "WEST");
+        addComponentToPanel(panel, txtCommodity, 1, 1, "WEST");
+        addComponentToPanel(panel, btnSelection, 4, 1, "WEST");
+
+        return panel;
     }
 
     private JPanel createPanel2()
@@ -256,7 +256,7 @@ class BuyCriteriaPanel extends BaseCriteriaPanel
         return panel;
     }
 
-    private void populateGuiFromSettings()
+    void populateGuiFromSettings()
     {
         setBooleanSetting(chkBlackMarket, TDGUI.settings.buyBlackMarket);
         setBooleanSetting(chk1Stop, TDGUI.settings.buyOneStop);

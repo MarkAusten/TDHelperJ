@@ -25,11 +25,11 @@ class MarketCriteriaPanel extends BaseCriteriaPanel
 
         this.ui = ui;
 
-        InitGui();
+        initGui();
         populateGuiFromSettings();
     }
 
-    private void InitGui()
+    private void initGui()
     {
         this.setBorder(BorderFactory.createMatteBorder(0, 1, 0, 1, Color.WHITE));
 
@@ -88,7 +88,7 @@ class MarketCriteriaPanel extends BaseCriteriaPanel
         return command;
     }
 
-    private void populateGuiFromSettings()
+    void populateGuiFromSettings()
     {
         String rareType = TDGUI.settings.raresRareType;
 

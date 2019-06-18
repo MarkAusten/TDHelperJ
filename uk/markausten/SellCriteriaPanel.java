@@ -45,7 +45,7 @@ class SellCriteriaPanel extends BaseCriteriaPanel
 
         this.ui = ui;
 
-        initGUI();
+        initGui();
         populateGuiFromSettings();
     }
 
@@ -159,7 +159,7 @@ class SellCriteriaPanel extends BaseCriteriaPanel
     /**
      * Set up the panel.
      */
-    private void initGUI()
+    private void initGui()
     {
         this.setBorder(BorderFactory.createMatteBorder(0, 1, 0, 1, Color.WHITE));
 
@@ -214,7 +214,7 @@ class SellCriteriaPanel extends BaseCriteriaPanel
         });
     }
 
-    private void populateGuiFromSettings()
+    void populateGuiFromSettings()
     {
         setBooleanSetting(chkBlackMarket, TDGUI.settings.sellBlackMarket);
 

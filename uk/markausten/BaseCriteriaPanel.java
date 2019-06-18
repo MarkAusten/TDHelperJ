@@ -62,6 +62,10 @@ public class BaseCriteriaPanel extends JPanel
     {
     }
 
+    void populateGuiFromSettings()
+    {
+    }
+
     public void postProcessingHook()
     {
     }

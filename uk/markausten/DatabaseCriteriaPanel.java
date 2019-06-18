@@ -32,7 +32,7 @@ class DatabaseCriteriaPanel extends BaseCriteriaPanel
 
         this.ui = ui;
 
-        initGUI();
+        initGui();
     }
 
     private boolean atLeastOneOptionChecked()
@@ -92,7 +92,7 @@ class DatabaseCriteriaPanel extends BaseCriteriaPanel
     /**
      * Set up the panel.
      */
-    private void initGUI()
+    private void initGui()
     {
         setLayout(new GridBagLayout());
 

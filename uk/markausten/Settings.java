@@ -28,6 +28,10 @@ class Settings
     boolean runTowards;
     boolean runUnique;
     boolean sellBlackMarket;
+    boolean settingsDisableAutoupdate;
+    boolean settingsDisableNetLogs;
+    boolean settingsProgress;
+    boolean settingsSummary;
 
     float buyNearLy;
     float localMaxLy;
@@ -40,6 +44,7 @@ class Settings
     float sellNearLy;
     float shipLaden;
     float shipUnladen;
+    float settingsRebuy;
 
     int buyAbove;
     int buyBelow;
@@ -71,14 +76,13 @@ class Settings
     int shipCapacity;
     int shipInsurance;
     long commanderCredits;
+    long shipId;
 
     String buyAvoid;
     String buyCommodity;
     String buyPads;
     String buyPlanetary;
     String buySortBy;
-    String currentDestination;
-    String currentSource;
     String localPads;
     String localPlanetary;
     String markedSystems;
@@ -97,13 +101,17 @@ class Settings
     String runAvoid;
     String runPlanetary;
     String runVia;
-    String selectedShip;
     String sellAvoid;
     String sellCommodity;
     String sellPads;
     String sellPlanetary;
     String sellSortBy;
     String shipPads;
+    String shipSelected;
+    String settingsNetLogPath;
+    String settingsRunParams;
+    String settingsVerbosity;
+    String commanderName;
 
     Settings()
     {
@@ -144,7 +152,7 @@ class Settings
     /**
      * Load the settings from the backing store.
      */
-    void loadSettings()
+    private void loadSettings()
     {
         Preferences prefs = getPreferences();
 
@@ -162,8 +170,7 @@ class Settings
         buySupply = prefs.getInt("buySupply", 0);
 
         commanderCredits = prefs.getLong("commanderCredits", 0);
-        currentDestination = prefs.get("currentDestination", "");
-        currentSource = prefs.get("currentSource", "");
+        commanderName = prefs.get("commanderName", "");
         markedSystems = prefs.get("markedSystems", "");
 
         localBlackMarket = prefs.getBoolean("localBlackMarket", false);
@@ -228,7 +235,7 @@ class Settings
         runUnique = prefs.getBoolean("runUnique", false);
         runVia = prefs.get("runVia", "");
 
-        selectedShip = prefs.get("selectedShip", "");
+        shipSelected = prefs.get("shipSelected", "");
         sellAbove = prefs.getInt("sellAbove", 0);
         sellAvoid = prefs.get("sellAvoid", "");
         sellBelow = prefs.getInt("sellBelow", 0);
@@ -240,11 +247,23 @@ class Settings
         sellResults = prefs.getInt("sellResults", 0);
         sellSortBy = prefs.get("sellSortBy", "");
 
+        shipSelected = prefs.get("shipSelected", "");
         shipCapacity = prefs.getInt("shipCapacity", 0);
         shipInsurance = prefs.getInt("shipInsurance", 0);
         shipLaden = prefs.getFloat("shipLaden", 0f);
         shipPads = prefs.get("shipPads", "");
         shipUnladen = prefs.getFloat("shipUnladen", 0f);
+        shipId = prefs.getLong("shipId", 0);
+
+        settingsDisableAutoupdate = prefs.getBoolean("settingsDisableAutoupdate", false);
+        settingsDisableNetLogs = prefs.getBoolean("settingsDisableNetLogs", false);
+        settingsProgress = prefs.getBoolean("settingsProgress", false);
+        settingsSummary = prefs.getBoolean("settingsSummary", false);
+
+        settingsRebuy = prefs.getFloat("settingsRebuy", 0f);
+        settingsRunParams = prefs.get("settingsRunParams", "");
+        settingsNetLogPath = prefs.get("settingsNetLogPath", "");
+        settingsVerbosity = prefs.get("settingsVerbosity", "");
     }
 
     /**
@@ -259,8 +278,6 @@ class Settings
         prefs.put("buyPads", buyPads);
         prefs.put("buyPlanetary", buyPlanetary);
         prefs.put("buySortBy", buySortBy);
-        prefs.put("currentDestination", currentDestination);
-        prefs.put("currentSource", currentSource);
         prefs.put("localPads", localPads);
         prefs.put("localPlanetary", localPlanetary);
         prefs.put("navAvoid", navAvoid);
@@ -276,13 +293,17 @@ class Settings
         prefs.put("runAvoid", runAvoid);
         prefs.put("runPlanetary", runPlanetary);
         prefs.put("runVia", runVia);
-        prefs.put("selectedShip", selectedShip);
+        prefs.put("shipSelected", shipSelected);
         prefs.put("sellAvoid", sellAvoid);
         prefs.put("sellCommodity", sellCommodity);
         prefs.put("sellPads", sellPads);
         prefs.put("sellPlanetary", sellPlanetary);
         prefs.put("sellSortBy", sellSortBy);
         prefs.put("shipPads", shipPads);
+        prefs.put("shipSelected", shipSelected);
+        prefs.put("settingsNetLogPath", settingsNetLogPath);
+        prefs.put("settingsRunParams", settingsRunParams);
+        prefs.put("settingsVerbosity", settingsVerbosity);
 
         prefs.putBoolean("buyBlackMarket", buyBlackMarket);
         prefs.putBoolean("buyOneStop", buyOneStop);
@@ -307,6 +328,10 @@ class Settings
         prefs.putBoolean("runTowards", runTowards);
         prefs.putBoolean("runUnique", runUnique);
         prefs.putBoolean("sellBlackMarket", sellBlackMarket);
+        prefs.putBoolean("settingsDisableAutoupdate", settingsDisableAutoupdate);
+        prefs.putBoolean("settingsDisableNetLogs", settingsDisableNetLogs);
+        prefs.putBoolean("settingsProgress", settingsProgress);
+        prefs.putBoolean("settingsSummary", settingsSummary);
 
         prefs.putFloat("buyNearLy", buyNearLy);
         prefs.putFloat("localMaxLy", localMaxLy);
@@ -318,6 +343,7 @@ class Settings
         prefs.putFloat("sellNearLy", sellNearLy);
         prefs.putFloat("shipLaden", shipLaden);
         prefs.putFloat("shipUnladen", shipUnladen);
+        prefs.putFloat("settingsRebuy", settingsRebuy);
 
         prefs.putInt("buyAbove", buyAbove);
         prefs.putInt("buyBelow", buyBelow);
@@ -347,6 +373,8 @@ class Settings
         prefs.putInt("shipInsurance", shipInsurance);
 
         prefs.putLong("commanderCredits", commanderCredits);
+        prefs.put("commanderName", commanderName);
+        prefs.putLong("shipId", shipId);
         prefs.put("markedSystems", markedSystems);
     }
 
@@ -366,8 +394,8 @@ class Settings
         buySupply = 0;
 
         commanderCredits = 0L;
-        currentDestination = "";
-        currentSource = "";
+        commanderName = "";
+        shipId = 0L;
         markedSystems = "";
 
         localBlackMarket = false;
@@ -432,8 +460,6 @@ class Settings
         runUnique = false;
         runVia = "";
 
-        selectedShip = "";
-
         sellAbove = 0;
         sellAvoid = "";
         sellBelow = 0;
@@ -450,5 +476,16 @@ class Settings
         shipLaden = 0f;
         shipPads = "";
         shipUnladen = 0f;
+
+        settingsNetLogPath = "";
+        settingsRunParams = "";
+        settingsVerbosity = "";
+
+        settingsSummary = false;
+        settingsProgress = false;
+        settingsDisableNetLogs = false;
+        settingsDisableAutoupdate = false;
+
+        settingsRebuy = 0f;
     }
 }
