@@ -210,6 +210,12 @@ class DatabaseCriteriaPanel extends BaseCriteriaPanel
         }
     }
 
+    @Override
+    public boolean processCanBeCancelled()
+    {
+        return false;
+    }
+
     private void setShipVend()
     {
         if (chkShipvend.isSelected())
