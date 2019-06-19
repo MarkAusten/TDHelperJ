@@ -761,8 +761,8 @@ class MainPanel extends JPanel
             // Shut down the timers and tidy up.
             flagTimerStop();
             elapsedTimer.stop();
-        buttonPanel.setButtonMode("");
-        currentCriteriaPanel.postProcessingHook();
+            buttonPanel.setButtonMode("");
+            currentCriteriaPanel.postProcessingHook();
         });
 
         // start the listener.
