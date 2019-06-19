@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -728,49 +729,49 @@ class MainPanel extends JPanel
      */
     private void runTradeCommand() throws IOException
     {
-//        // Set the elapsed timer going.
-//        if (elapsedTimer == null)
-//        {
-//            elapsedTimer = new Timer(1000, e -> updateElapsed());
-//        }
-//
-//        secondsElapsed = 0;
-//        elapsedTimer.start();
-//
-//        // Get a new process and issue the command.
-//        ProcessBuilder processBuilder = new ProcessBuilder(commandInformation);
-//
-//        process = processBuilder.start();
-//
-//        InputStream inputStream = process.getInputStream();
-//        InputStream errorStream = process.getErrorStream();
-//
-//        inputStreamHandler = new ThreadedStreamHandler(inputStream, this);
-//        errorStreamHandler = new ThreadedStreamHandler(errorStream, this);
-//
-//        inputStreamHandler.start();
-//        errorStreamHandler.start();
-//
-//        timerStopFlag = false;
-//
-//        // Set up a listener to detect when the command has finished.
-//        ProcessExitDetector ped = new ProcessExitDetector(process);
-//
-//        ped.addProcessListener(process1 -> {
-//            // Shut down the timers and tidy up.
-//            flagTimerStop();
-//            elapsedTimer.stop();
+        // Set the elapsed timer going.
+        if (elapsedTimer == null)
+        {
+            elapsedTimer = new Timer(1000, e -> updateElapsed());
+        }
+
+        secondsElapsed = 0;
+        elapsedTimer.start();
+
+        // Get a new process and issue the command.
+        ProcessBuilder processBuilder = new ProcessBuilder(commandInformation);
+
+        process = processBuilder.start();
+
+        InputStream inputStream = process.getInputStream();
+        InputStream errorStream = process.getErrorStream();
+
+        inputStreamHandler = new ThreadedStreamHandler(inputStream, this);
+        errorStreamHandler = new ThreadedStreamHandler(errorStream, this);
+
+        inputStreamHandler.start();
+        errorStreamHandler.start();
+
+        timerStopFlag = false;
+
+        // Set up a listener to detect when the command has finished.
+        ProcessExitDetector ped = new ProcessExitDetector(process);
+
+        ped.addProcessListener(process1 -> {
+            // Shut down the timers and tidy up.
+            flagTimerStop();
+            elapsedTimer.stop();
         buttonPanel.setButtonMode("");
         currentCriteriaPanel.postProcessingHook();
-//        });
-//
-//        // start the listener.
-//        ped.start();
-//
-//        // Update the output display repeatedly.
-//        timer = new Timer(500, e -> updateOutput());
-//
-//        timer.start();
+        });
+
+        // start the listener.
+        ped.start();
+
+        // Update the output display repeatedly.
+        timer = new Timer(500, e -> updateOutput());
+
+        timer.start();
     }
 
     /**
