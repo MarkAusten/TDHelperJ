@@ -174,20 +174,18 @@ class CommanderCriteriaPanel extends BaseCriteriaPanel
                 // Parse the file and extract the required data.
                 JSONObject json = (JSONObject) (new JSONParser().parse(new FileReader(fileName)));
 
-                JSONObject profile = (JSONObject) json.get("profile");
-                JSONObject commander = (JSONObject) profile.get("commander");
-                JSONObject ship = (JSONObject) profile.get("ship");
-                JSONObject value = (JSONObject) ship.get("value");
+                JSONObject profile = Utils.getJsonObject(json, "profile");
+                JSONObject commander = Utils.getJsonObject(profile, "commander");
+                JSONObject ship = Utils.getJsonObject(profile, "ship");
 
                 float rebuy = p.settingsRebuy;
                 int insurance = 0;
 
                 if (rebuy > 0f)
                 {
-                    long hullCost = (long) value.get("hull");
-                    long moduleCost = (long) value.get("modules");
+                    long cost = getShipCost(ship);
 
-                    insurance = (int)((hullCost + moduleCost) / 100 * rebuy);
+                    insurance = (int)(cost / 100 * rebuy);
                 }
 
                 p.shipInsurance = insurance;
@@ -211,13 +209,42 @@ class CommanderCriteriaPanel extends BaseCriteriaPanel
     }
 
     /**
+     * @param ship The ship  object.
+     * @return The values of the ship.
+     */
+    private long getShipCost(JSONObject ship)
+    {
+        JSONObject value = Utils.getJsonObject(ship, "value");
+
+        long hullCost = (long) value.get("hull");
+        long moduleCost = (long) value.get("modules");
+
+        return hullCost + moduleCost;
+    }
+
+    /**
      * Update the owned ships on record if anything has changed.
      *
      * @param profile The downloaded profile object.
      */
     private void updateOwnedShips(JSONObject profile)
     {
-        // TODO Write this method.
+        JSONObject ships = Utils.getJsonObject(profile, "ships");
+
+        for (Object o : ships.keySet())
+        {
+            String shipId = (String) o;
+
+            JSONObject ship = Utils.getJsonObject(ships, shipId);
+
+            if (ship != null)
+            {
+                long cost = getShipCost(ship);
+                String shipName = getShipName(ship);
+
+                String tmp = "break;";
+            }
+        }
     }
 
     @Override
@@ -248,5 +275,26 @@ class CommanderCriteriaPanel extends BaseCriteriaPanel
         }
 
         return type;
+    }
+}
+
+class JsonO extends JSONObject
+{
+    public JsonO getJso(String key)
+    {
+        JsonO result = null;
+
+        for(String k: key.split("\\."))
+        {
+            result = (JsonO) get(k);
+
+            if (result == null)
+            {
+                break;
+            }
+        }
+
+        return result;
+
     }
 }

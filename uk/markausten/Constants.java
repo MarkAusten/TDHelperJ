@@ -147,5 +147,14 @@ class Constants
     static final String STRING_SELL = "Sell";
     static final String STRING_SUPPLY = "Supply";
     static final String STRING_READY = "Ready";
+    static final String STRING_LOG_Folder_1 = "c:\\Program Files (x86)\\Frontier\\Products\\elite-dangerous-64";
+    static final String STRING_LOG_Folder_2 = "c:\\Program Files (x86)\\steam\\steamapps\\common\\Elite Dangerous\\Products\\elite-dangerous-64";
+    static final String STRING_LOG_Folder_3 = "c:\\Program Files (x86)\\Oculus\\Software\\frontier-developments-plc-elite-dangerous\\Products\\elite-dangerous-64";
+    static final String STRING_TD_NOT_INSTALLED = "Trade Dangerous is not installed. Install it now?";
+    static final String STRING_SELECT_OPTION = "Select an Option...";
+    static final String STRING_WILL_SHUT_DOWN = "TDHelperJ wil not work without Trade Dangerous and will now shut down.";
+    static final String STRING_SHUTTING_DOWN = "Shutting down...";
+    static final String STRING_TD_NEW_VERSION = "A new version of Trade Dangerous is available. Upgrade now?";
+    static final String URL_TD_VERSIONS = "https://pypi.python.org/pypi/tradedangerous/json";
 
 }

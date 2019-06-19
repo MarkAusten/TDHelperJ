@@ -70,6 +70,14 @@ public class BaseCriteriaPanel extends JPanel
     {
     }
 
+    public void postShowHook()
+    {
+    }
+
+    public void preShowHook()
+    {
+    }
+
     public void preProcessingHook()
     {
     }

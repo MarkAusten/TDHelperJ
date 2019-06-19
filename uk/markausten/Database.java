@@ -130,9 +130,9 @@ class Database
     }
 
     /**
-     * @return A list of commodities.
+     * @return A list of Ships.
      */
-    List<Object[]> getShips()
+    List<Object[]> getAllAvailableShips()
     {
         StringBuilder sb = new StringBuilder();
 
@@ -161,12 +161,12 @@ class Database
     }
 
     /**
-     * Run the specified query and return the resultw.
+     * Run the specified query and return the results.
      *
      * @param sql The query to run.
      * @return The results of the query as a list of String arrays.
      */
-    List<Object[]> runQuery(String sql)
+    private List<Object[]> runQuery(String sql)
     {
         List<Object[]> results = new ArrayList<>();
 
@@ -194,16 +194,59 @@ class Database
 
                     results.add(record);
                 }
-
-                conn.close();
             }
             catch (SQLException e)
             {
                 LogClass.log.severe(e.getMessage());
             }
+            finally
+            {
+                try
+                {
+                    conn.close();
+                }
+                catch (Exception e)
+                {
+                    LogClass.log.severe(e.getMessage());
+                }
+            }
         }
 
         return results;
+    }
+
+    /**
+     * Execute the specified query.
+     *
+     * @param sql The query to run.
+     */
+    private void executeQuery(String sql)
+    {
+        Connection conn = connect("tdhelper.db");
+
+        if (conn != null)
+        {
+            try
+            {
+                Statement stmt = conn.createStatement();
+                stmt.execute(sql);
+            }
+            catch (SQLException e)
+            {
+                LogClass.log.severe(e.getMessage());
+            }
+            finally
+            {
+                try
+                {
+                    conn.close();
+                }
+                catch (Exception e)
+                {
+                    LogClass.log.severe(e.getMessage());
+                }
+            }
+        }
     }
 
     List<Object[]> searchSystem(String fragment)
@@ -220,5 +263,46 @@ class Database
                 .append("order by sys.name, stn.name");
 
         return runQuery(sb.toString());
+    }
+
+    /**
+     * Check to see if the ships table is in the tdh database and create it if not.
+     */
+    void createShipsTableIfNotExists()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb
+                .append("create table if not exists Ships ( ")
+                .append("id integer primary key autoincrement, ")
+                .append("ship_id integer")
+                .append("name varchar(100), ")
+                .append("type varchar(100), ")
+                .append("capacity integer, ")
+                .append("laden decimal(10,2), ")
+                .append("unladen decimal(10,2), ")
+                .append("is_base tinyint)");
+
+        executeQuery(sb.toString());
+    }
+
+    /**
+     * Check to see if the ships table is in the tdh database and create it if not.
+     */
+    void createNetLogsTableIfNotExists()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb
+                .append("create table if not exists NetLogs ( ")
+                .append("Filename nvarchar primary key, ")
+                .append("HasSystems tinyint, ")
+                .append("HeaderTimestamp nvarchar)");
+
+        executeQuery(sb.toString());
+
+        String sql = "create index if not exists FileHasSystems on NetLogs (HasSystems)";
+
+        executeQuery(sql);
     }
 }

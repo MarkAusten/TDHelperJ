@@ -1,9 +1,14 @@
 package uk.markausten;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +50,11 @@ class MainPanel extends JPanel
     public MainPanel()
     {
         initGui();
+        initDatabase();
+        initSettings();
+
+        addListeners();
+
     }
 
     /**
@@ -62,8 +72,52 @@ class MainPanel extends JPanel
             criteriaPanelHolder.add(panel, gbc);
         }
 
-
         currentCriteriaPanel = panel;
+    }
+
+    /**
+     * Add any listeners that are required.
+     */
+    private void addListeners()
+    {
+        TDGUI.frame.addWindowListener(new WindowListener()
+        {
+            @Override
+            public void windowActivated(WindowEvent e)
+            {
+            }
+
+            @Override
+            public void windowClosed(WindowEvent e)
+            {
+            }
+
+            @Override
+            public void windowClosing(WindowEvent e)
+            {
+            }
+
+            @Override
+            public void windowDeactivated(WindowEvent e)
+            {
+            }
+
+            @Override
+            public void windowDeiconified(WindowEvent e)
+            {
+            }
+
+            @Override
+            public void windowIconified(WindowEvent e)
+            {
+            }
+
+            @Override
+            public void windowOpened(WindowEvent e)
+            {
+                SwingUtilities.invokeLater(() -> checkTradeDangerous());
+            }
+        });
     }
 
     /**
@@ -144,11 +198,132 @@ class MainPanel extends JPanel
     }
 
     /**
+     * Check and optionally install or update Trade Dangerous.
+     */
+    private void checkTradeDangerous()
+    {
+        // Get the installed Trade Dangerous version.
+        List<String> cmd = new ArrayList<>();
+
+        cmd.add("pip");
+        cmd.add("show");
+        cmd.add("tradedangerous");
+
+        String output = Utils.runProcess(cmd);
+
+        if (output.isEmpty())
+        {
+            // No TD installed so ask to install it.
+            int input = JOptionPane.showConfirmDialog(
+                    TDGUI.frame,
+                    Constants.STRING_TD_NOT_INSTALLED,
+                    Constants.STRING_SELECT_OPTION,
+                    JOptionPane.YES_NO_OPTION
+                                                     );
+
+            if (input == JOptionPane.NO_OPTION)
+            {
+                JOptionPane.showConfirmDialog(
+                        TDGUI.frame,
+                        Constants.STRING_WILL_SHUT_DOWN,
+                        Constants.STRING_SHUTTING_DOWN,
+                        JOptionPane.DEFAULT_OPTION
+                                             );
+
+                // Kill the application;
+                System.exit(0);
+            }
+
+            cmd.clear();
+            cmd.add("pip");
+            cmd.add("install");
+            cmd.add("tradedangerous");
+
+            output = Utils.runProcess(cmd);
+
+            queueStringImmediate(output);
+        }
+        else
+        {
+            // Extract the version number from the output.
+            String[] lines = output.split("\n");
+
+            long installedVersion = convertVersionNumber(
+                    lines[1]
+                            .substring(1 + lines[1].indexOf(":"))
+                            .trim());
+
+            try
+            {
+                // Get the list of available versions from the pypi server.
+                String releases = Utils.downloadString(new URL(Constants.URL_TD_VERSIONS));
+
+                // Extract the latest version.
+                JSONObject json = (JSONObject) (new JSONParser().parse(releases));
+
+                JSONObject releaseList = Utils.getJsonObject(json, "releases");
+
+                long key = 0L;
+                long latestVersion = 0L;
+
+                for (Object o : releaseList.keySet())
+                {
+                    key = convertVersionNumber((String) o);
+
+                    latestVersion = Math.max(key, latestVersion);
+                }
+
+                if (latestVersion > installedVersion)
+                {
+                    // No TD installed so ask to install it.
+                    int input = JOptionPane.showConfirmDialog(
+                            TDGUI.frame,
+                            Constants.STRING_TD_NEW_VERSION,
+                            Constants.STRING_SELECT_OPTION,
+                            JOptionPane.YES_NO_OPTION
+                                                             );
+
+                    if (input == JOptionPane.YES_OPTION)
+                    {
+                        // Update
+                        cmd.clear();
+                        cmd.add("pip");
+                        cmd.add("install");
+                        cmd.add("--upgrade");
+                        cmd.add("tradedangerous");
+
+                        output = Utils.runProcess(cmd);
+
+                        queueStringImmediate(output);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LogClass.log.severe(e.getMessage());
+            }
+        }
+    }
+
+    /**
      * Clear the output panel of any prior messages.
      */
     private void clearOutputPanel()
     {
         outputPanel.clearOutput();
+    }
+
+    private long convertVersionNumber(String version)
+    {
+        int power = 3;
+        long result = 0;
+
+        for (String s : version.split("\\."))
+        {
+            result += Utils.convertStringToInt(s) * Math.pow(10, power--);
+        }
+
+        return result;
     }
 
     /**
@@ -213,6 +388,19 @@ class MainPanel extends JPanel
         }
 
         return command;
+    }
+
+    /**
+     * Show the correct criteria panel.
+     */
+    private CommanderCriteriaPanel getCommanderCriteriaPanel()
+    {
+        if (commanderCriteriaPanel == null)
+        {
+            commanderCriteriaPanel = new CommanderCriteriaPanel(this);
+        }
+
+        return commanderCriteriaPanel;
     }
 
     /**
@@ -351,19 +539,6 @@ class MainPanel extends JPanel
     /**
      * Show the correct criteria panel.
      */
-    private CommanderCriteriaPanel getCommanderCriteriaPanel()
-    {
-        if (commanderCriteriaPanel == null)
-        {
-            commanderCriteriaPanel = new CommanderCriteriaPanel(this);
-        }
-
-        return commanderCriteriaPanel;
-    }
-
-    /**
-     * Show the correct criteria panel.
-     */
     private ShipVendorCriteriaPanel getShipVendorCriteriaPanel()
     {
         if (shipVendorCriteriaPanel == null)
@@ -418,6 +593,17 @@ class MainPanel extends JPanel
             currentCriteriaPanel.populateSettingsFromGui();
             currentCriteriaPanel.setVisible(false);
         }
+    }
+
+    /**
+     * Check the database for the expected schema.
+     */
+    private void initDatabase()
+    {
+        Database db = new Database();
+
+        db.createShipsTableIfNotExists();
+        db.createNetLogsTableIfNotExists();
     }
 
     /**
@@ -489,6 +675,26 @@ class MainPanel extends JPanel
     }
 
     /**
+     * Check that some of the settings are correctly set.
+     */
+    private void initSettings()
+    {
+        String os = Utils.determinOsType();
+
+        if (!os
+                .toLowerCase()
+                .equals("windows"))
+        {
+            TDGUI.settings.settingsDisableNetLogs = true;
+            TDGUI.settings.settingsNetLogPath = "";
+        }
+
+        Utils.checkDefaultNetLogPath();
+
+        TDGUI.settings.saveSettings();
+    }
+
+    /**
      * Push a message onto the output display queue.
      *
      * @param text The message to be displayed.
@@ -522,49 +728,49 @@ class MainPanel extends JPanel
      */
     private void runTradeCommand() throws IOException
     {
-        // Set the elapsed timer going.
-        if (elapsedTimer == null)
-        {
-            elapsedTimer = new Timer(1000, e -> updateElapsed());
-        }
-
-        secondsElapsed = 0;
-        elapsedTimer.start();
-
-        // Get a new process and issue the command.
-        ProcessBuilder processBuilder = new ProcessBuilder(commandInformation);
-
-        process = processBuilder.start();
-
-        InputStream inputStream = process.getInputStream();
-        InputStream errorStream = process.getErrorStream();
-
-        inputStreamHandler = new ThreadedStreamHandler(inputStream, this);
-        errorStreamHandler = new ThreadedStreamHandler(errorStream, this);
-
-        inputStreamHandler.start();
-        errorStreamHandler.start();
-
-        timerStopFlag = false;
-
-        // Set up a listener to detect when the command has finished.
-        ProcessExitDetector ped = new ProcessExitDetector(process);
-
-        ped.addProcessListener(process1 -> {
-            // Shut down the timers and tidy up.
-            flagTimerStop();
-            elapsedTimer.stop();
-            buttonPanel.setButtonMode("");
-            currentCriteriaPanel.postProcessingHook();
-        });
-
-        // start the listener.
-        ped.start();
-
-        // Update the output display repeatedly.
-        timer = new Timer(500, e -> updateOutput());
-
-        timer.start();
+//        // Set the elapsed timer going.
+//        if (elapsedTimer == null)
+//        {
+//            elapsedTimer = new Timer(1000, e -> updateElapsed());
+//        }
+//
+//        secondsElapsed = 0;
+//        elapsedTimer.start();
+//
+//        // Get a new process and issue the command.
+//        ProcessBuilder processBuilder = new ProcessBuilder(commandInformation);
+//
+//        process = processBuilder.start();
+//
+//        InputStream inputStream = process.getInputStream();
+//        InputStream errorStream = process.getErrorStream();
+//
+//        inputStreamHandler = new ThreadedStreamHandler(inputStream, this);
+//        errorStreamHandler = new ThreadedStreamHandler(errorStream, this);
+//
+//        inputStreamHandler.start();
+//        errorStreamHandler.start();
+//
+//        timerStopFlag = false;
+//
+//        // Set up a listener to detect when the command has finished.
+//        ProcessExitDetector ped = new ProcessExitDetector(process);
+//
+//        ped.addProcessListener(process1 -> {
+//            // Shut down the timers and tidy up.
+//            flagTimerStop();
+//            elapsedTimer.stop();
+        buttonPanel.setButtonMode("");
+        currentCriteriaPanel.postProcessingHook();
+//        });
+//
+//        // start the listener.
+//        ped.start();
+//
+//        // Update the output display repeatedly.
+//        timer = new Timer(500, e -> updateOutput());
+//
+//        timer.start();
     }
 
     /**
@@ -587,8 +793,12 @@ class MainPanel extends JPanel
     {
         if (currentCriteriaPanel != null)
         {
+            currentCriteriaPanel.preShowHook();
             currentCriteriaPanel.setVisible(true);
+            currentCriteriaPanel.postShowHook();
+
             buttonPanel.setButtonMode(currentCriteriaPanel.requiredButtonMode());
+
             currentCriteriaPanel.preProcessingHook();
         }
     }
@@ -686,7 +896,7 @@ class MainPanel extends JPanel
         {
             if (source.indexOf('/') > -1)
             {
-                ListShips d = new ListShips(source);
+                ListShipsAtStation d = new ListShipsAtStation(source);
 
                 d.setUndecorated(true);
                 d.pack();

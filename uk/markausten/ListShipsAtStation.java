@@ -5,16 +5,15 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.text.NumberFormat;
-import java.util.Arrays;
 import java.util.List;
 
-class ListShips extends JDialog
+class ListShipsAtStation extends JDialog
 {
     private Object[][] data;
     private String source;
     private DataModel model;
 
-    ListShips(String source)
+    ListShipsAtStation(String source)
     {
         this.source = source;
         JPanel contentPane = new JPanel();
@@ -66,8 +65,6 @@ class ListShips extends JDialog
         List<Object[]> rows = (new Database()).getShipVendor(source);
 
         data = new Object[rows.size()][2];
-
-        List<String> items = Arrays.asList(source.split(","));
 
         int i = 0;
 

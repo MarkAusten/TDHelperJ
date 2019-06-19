@@ -46,42 +46,29 @@ class SettingsCriteriaPanel extends BaseCriteriaPanel
      */
     private void addListeners()
     {
-        chkDisableNetLogs.addActionListener(e -> setNetLogsEnabled());
+        chkDisableNetLogs.addActionListener(e -> checkSettingsSanity());
     }
 
     /**
-     * @return The correct progress setting.
+     * Check the validity of the settings.
      */
-    boolean getProgress()
+    private void checkSettingsSanity()
     {
-        return chkProgress.isSelected();
-    }
+        if (Utils
+                .determinOsType()
+                .equals("MacOS"))
+        {
+            chkDisableNetLogs.setEnabled(false);
+            txtNetLogsPath.setEnabled(false);
+            btnFolder.setEnabled(false);
+        }
+        else
+        {
+            boolean netLogsEnabled = !TDGUI.settings.settingsDisableNetLogs;
 
-    /**
-     * @return The correct summary setting.
-     */
-    boolean getSummary()
-    {
-        return chkSummary.isSelected();
-    }
-
-    /**
-     * @return Get the selected verbosity.
-     */
-    String getVerbosity()
-    {
-        return (String)cboVerbosity.getSelectedItem();
-    }
-
-    /**
-     * Set the enabled state of the net log ccontrols.
-     */
-    private void setNetLogsEnabled()
-    {
-        boolean isEnabled = !chkDisableNetLogs.isSelected();
-
-        txtNetLogsPath.setEnabled(isEnabled);
-        btnFolder.setEnabled(isEnabled);
+            txtNetLogsPath.setEnabled(netLogsEnabled);
+            btnFolder.setEnabled(netLogsEnabled);
+        }
     }
 
     private JPanel createPanel1()
@@ -131,6 +118,30 @@ class SettingsCriteriaPanel extends BaseCriteriaPanel
         command.clear();
 
         return command;
+    }
+
+    /**
+     * @return The correct progress setting.
+     */
+    boolean getProgress()
+    {
+        return chkProgress.isSelected();
+    }
+
+    /**
+     * @return The correct summary setting.
+     */
+    boolean getSummary()
+    {
+        return chkSummary.isSelected();
+    }
+
+    /**
+     * @return Get the selected verbosity.
+     */
+    String getVerbosity()
+    {
+        return (String) cboVerbosity.getSelectedItem();
     }
 
     /**
@@ -239,15 +250,12 @@ class SettingsCriteriaPanel extends BaseCriteriaPanel
     @Override
     public void preProcessingHook()
     {
-        checkSettingsSanity();
     }
 
-    /**
-     * Check the validity of the settings.
-     */
-    private void checkSettingsSanity()
+    @Override
+    public void preShowHook()
     {
-
+        checkSettingsSanity();
     }
 
     @Override

@@ -8,6 +8,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileSystemView;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
@@ -15,8 +16,11 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -202,6 +206,52 @@ class Utils
         return command;
     }
 
+    static void checkDefaultNetLogPath()
+    {
+        File testForFolder = new File(Constants.STRING_LOG_Folder_1);
+
+        boolean found = testForFolder.exists();
+
+        if (!found)
+        {
+            // Locate the user's folder.
+            String path = FileSystemView
+                    .getFileSystemView()
+                    .getDefaultDirectory()
+                    .getPath();
+
+            path = path.substring(0, path.lastIndexOf(File.separator));
+
+            testForFolder = new File(path + "\\AppData\\Local\\Frontier_Developments\\Products\\elite-dangerous-64");
+            found = testForFolder.exists();
+        }
+
+        if (!found)
+        {
+            testForFolder = new File(Constants.STRING_LOG_Folder_2);
+
+            found = testForFolder.exists();
+        }
+
+        if (!found)
+        {
+            testForFolder = new File(Constants.STRING_LOG_Folder_3);
+
+            found = testForFolder.exists();
+        }
+
+        if (found)
+        {
+            String folder = testForFolder.getPath();
+            File testForFile = new File(folder + "\\AppConfig.xml");
+
+            if (testForFile.exists())
+            {
+                TDGUI.settings.settingsNetLogPath = folder;
+            }
+        }
+    }
+
     static float convertStringToFloat(String value)
     {
         float result = 0f;
@@ -265,6 +315,57 @@ class Utils
                 .count();
     }
 
+    /**
+     * @return The current OS type.
+     */
+    static String determinOsType()
+    {
+        String result = "";
+
+        String os = System
+                .getProperty("os.name")
+                .toLowerCase();
+
+        if (os.contains("win"))
+        {
+            result = "Windows";
+        }
+        else if (os.contains("mac os x"))
+        {
+            result = "MacOS";
+        }
+        else if (os.contains("nix") || os.contains("aix") || os.contains("nux"))
+        {
+            result = "*Nix";
+        }
+
+        return result;
+    }
+
+    static String downloadString(URL url)
+    {
+        StringBuilder text = new StringBuilder();
+        try
+        {
+            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+
+            String inputLine;
+
+            while ((inputLine = in.readLine()) != null)
+            {
+                text.append(inputLine);
+            }
+
+            in.close();
+        }
+        catch (Exception e)
+        {
+            LogClass.log.severe(e.getMessage());
+        }
+
+        return text.toString();
+    }
+
     static void enableAllCheckboxes(
             Container parent,
             boolean state)
@@ -281,6 +382,53 @@ class Utils
             }
         }
 
+    }
+
+    /**
+     * @param shipType The internal ship type as specified by FDev.
+     * @return The ship json object.
+     */
+    static JSONObject getBaseShipData(String shipType)
+    {
+        JSONObject ship = null;
+
+        try
+        {
+            // Get a reference to the base ships resource file.
+            InputStream resource = TDGUI.class.getResourceAsStream("/base_ships.json");
+
+            if (resource != null)
+            {
+                // Look up the internal ship type in the  resource and get the game ship type.
+                JSONObject json = (JSONObject) (new JSONParser().parse(new InputStreamReader(resource)));
+                ship = Utils.getJsonObject(json, "ships." + shipType);
+            }
+        }
+        catch (Exception e)
+        {
+            LogClass.log.severe(e.getMessage());
+        }
+
+        return ship;
+    }
+
+    static JSONObject getJsonObject(
+            JSONObject json,
+            String key)
+    {
+        JSONObject result = json;
+
+        for (String k : key.split("\\."))
+        {
+            result = (JSONObject) result.get(k);
+
+            if (result == null)
+            {
+                break;
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -301,6 +449,46 @@ class Utils
                 rightAlignTextIn((Container) c);
             }
         }
+    }
+
+    static String runProcess(List<String> cmd)
+    {
+        StringBuilder output = new StringBuilder();
+
+        try
+        {
+            ProcessBuilder pb = new ProcessBuilder(cmd);
+
+            Process proc = pb.start();
+
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+
+            // read the output from the command
+            String s;
+
+            while ((s = stdInput.readLine()) != null)
+            {
+                output
+                        .append(s)
+                        .append("\n");
+            }
+
+            // read any errors from the attempted command
+            while ((s = stdError.readLine()) != null)
+            {
+                output
+                        .append(s)
+                        .append("\n");
+            }
+        }
+        catch (Exception e)
+        {
+            LogClass.log.severe(e.getMessage());
+        }
+
+        return output.toString();
     }
 
     /**
@@ -381,49 +569,39 @@ class Utils
     {
         UP, DOWN
     }
+}
 
-    static JSONObject getJsonObject(JSONObject json, String key)
+class TSH extends Thread
+{
+    StringBuilder sb;
+    private InputStream inputStream;
+    private volatile String line;
+
+    TSH(
+            InputStream inputStream,
+            StringBuilder sb)
     {
-        JSONObject result = json;
-
-        for(String k: key.split("\\."))
-        {
-            result = (JSONObject)result.get(k);
-
-            if (result == null)
-            {
-                break;
-            }
-        }
-
-        return result;
+        this.inputStream = inputStream;
+        this.sb = sb;
     }
 
-    /**
-     * @param shipType The internal ship type as specified by FDev.
-     * @return The ship json object.
-     */
-    static JSONObject getBaseShipData(String shipType)
+    public void run()
     {
-        JSONObject ship = null;
 
-        try
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream)))
         {
-            // Get a reference to the base ships resource file.
-            InputStream resource = TDGUI.class.getResourceAsStream("/base_ships.json");
-
-            if (resource != null)
+            while ((line = bufferedReader.readLine()) != null)
             {
-                // Look up the internal ship type in the  resource and get the game ship type.
-                JSONObject json = (JSONObject) (new JSONParser().parse(new InputStreamReader(resource)));
-                ship = Utils.getJsonObject(json, "ships." + shipType);
+                if (line != null)
+                {
+                    sb.append(line);
+                }
             }
         }
-        catch (Exception e)
+        catch (Throwable ioe)
         {
-            LogClass.log.severe(e.getMessage());
+            ioe.printStackTrace();
         }
-
-        return ship;
     }
+
 }
