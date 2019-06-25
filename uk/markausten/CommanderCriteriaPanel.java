@@ -1,5 +1,6 @@
 package uk.markausten;
 
+import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -8,6 +9,8 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileReader;
 import java.util.List;
+
+import static java.nio.charset.Charset.forName;
 
 class CommanderCriteriaPanel extends BaseCriteriaPanel
 {
@@ -25,6 +28,7 @@ class CommanderCriteriaPanel extends BaseCriteriaPanel
         this.ui = ui;
 
         initGui();
+        initEdApi();
     }
 
     /**
@@ -81,6 +85,20 @@ class CommanderCriteriaPanel extends BaseCriteriaPanel
     }
 
     /**
+     * @param ship The ship  object.
+     * @return The values of the ship.
+     */
+    private long getShipCost(JSONObject ship)
+    {
+        JSONObject value = Utils.getJsonObject(ship, "value");
+
+        long hullCost = (long) value.get("hull");
+        long moduleCost = (long) value.get("modules");
+
+        return hullCost + moduleCost;
+    }
+
+    /**
      * @param ship The json object containing the ship data.
      * @return The ship name.
      */
@@ -100,7 +118,9 @@ class CommanderCriteriaPanel extends BaseCriteriaPanel
             // If the commander has not specified an ID then use the FDev ID.
             if (shipId == null)
             {
-                shipId = (String) ship.get("id");
+                shipId = ship
+                        .get("id")
+                        .toString();
             }
 
             // Get the commander specified ship name if it exists.
@@ -115,7 +135,7 @@ class CommanderCriteriaPanel extends BaseCriteriaPanel
                 shipName = "(" + shipName + ")";
             }
 
-            // Get the ship type inconvenitnely call "name" by FDev.
+            // Get the ship type inconveniently called "name" by FDev.
             String shipType = (String) ship.get("name");
 
             // Construct a string from the extracted data.
@@ -137,6 +157,27 @@ class CommanderCriteriaPanel extends BaseCriteriaPanel
         }
 
         return pads;
+    }
+
+    private void initEdApi()
+    {
+//        // Check to see if there is an edapi.config file.
+//        File edapi = new File("data/edapi.config");
+//
+//        if (!edapi.exists())
+//        {
+//            // One does not exist so write a skeleton file.
+//            String text = "[companion]\nredirect_uri = http://127.0.0.1:2989/callback\n";
+//
+//            try
+//            {
+//                FileUtils.writeStringToFile(edapi, text, forName("UTF-8"));
+//            }
+//            catch (Exception e)
+//            {
+//                LogClass.log.severe(e.getMessage());
+//            }
+//        }
     }
 
     /**
@@ -185,7 +226,7 @@ class CommanderCriteriaPanel extends BaseCriteriaPanel
                 {
                     long cost = getShipCost(ship);
 
-                    insurance = (int)(cost / 100 * rebuy);
+                    insurance = (int) (cost / 100 * rebuy);
                 }
 
                 p.shipInsurance = insurance;
@@ -205,45 +246,6 @@ class CommanderCriteriaPanel extends BaseCriteriaPanel
         catch (Exception e)
         {
             LogClass.log.severe(e.getMessage());
-        }
-    }
-
-    /**
-     * @param ship The ship  object.
-     * @return The values of the ship.
-     */
-    private long getShipCost(JSONObject ship)
-    {
-        JSONObject value = Utils.getJsonObject(ship, "value");
-
-        long hullCost = (long) value.get("hull");
-        long moduleCost = (long) value.get("modules");
-
-        return hullCost + moduleCost;
-    }
-
-    /**
-     * Update the owned ships on record if anything has changed.
-     *
-     * @param profile The downloaded profile object.
-     */
-    private void updateOwnedShips(JSONObject profile)
-    {
-        JSONObject ships = Utils.getJsonObject(profile, "ships");
-
-        for (Object o : ships.keySet())
-        {
-            String shipId = (String) o;
-
-            JSONObject ship = Utils.getJsonObject(ships, shipId);
-
-            if (ship != null)
-            {
-                long cost = getShipCost(ship);
-                String shipName = getShipName(ship);
-
-                String tmp = "break;";
-            }
         }
     }
 
@@ -276,6 +278,31 @@ class CommanderCriteriaPanel extends BaseCriteriaPanel
 
         return type;
     }
+
+    /**
+     * Update the owned ships on record if anything has changed.
+     *
+     * @param profile The downloaded profile object.
+     */
+    private void updateOwnedShips(JSONObject profile)
+    {
+        JSONObject ships = Utils.getJsonObject(profile, "ships");
+
+        for (Object o : ships.keySet())
+        {
+            String shipId = (String) o;
+
+            JSONObject ship = Utils.getJsonObject(ships, shipId);
+
+            if (ship != null)
+            {
+                long cost = getShipCost(ship);
+                String shipName = getShipName(ship);
+
+                String tmp = "break;";
+            }
+        }
+    }
 }
 
 class JsonO extends JSONObject
@@ -284,7 +311,7 @@ class JsonO extends JSONObject
     {
         JsonO result = null;
 
-        for(String k: key.split("\\."))
+        for (String k : key.split("\\."))
         {
             result = (JsonO) get(k);
 
