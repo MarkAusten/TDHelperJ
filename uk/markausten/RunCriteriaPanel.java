@@ -210,8 +210,23 @@ class RunCriteriaPanel extends BaseCriteriaPanel
             Utils.addStringParameter(ui.getInsurance(), "--insurance", command);
         }
 
-        addSource(ui.getSource(), command);
-        addDestination(ui.getDestination(), command);
+        String source = ui.getSource();
+
+        if (source != null && ! source.isEmpty())
+        {
+            addSource(ui.getSource(), command);
+
+            Utils.addIntegerParameter(txtStartJumps.getText(), "--start-jumps", command);
+        }
+
+        String destination = ui.getDestination();
+
+        if (destination != null && !destination.isEmpty())
+        {
+            addDestination(ui.getDestination(), command);
+
+            Utils.addIntegerParameter(txtEndJumps.getText(), "--end-jumps", command);
+        }
 
         ui.addVerbosity(command);
         ui.addSettingParameters(command);
