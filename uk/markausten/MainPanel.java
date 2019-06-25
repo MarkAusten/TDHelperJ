@@ -246,62 +246,65 @@ class MainPanel extends JPanel
         }
         else
         {
-            // Extract the version number from the output.
-            String[] lines = output.split("\n");
-
-            long installedVersion = convertVersionNumber(
-                    lines[1]
-                            .substring(1 + lines[1].indexOf(":"))
-                            .trim());
-
-            try
+            if (!TDGUI.settings.settingsDisableAutoupdate)
             {
-                // Get the list of available versions from the pypi server.
-                String releases = Utils.downloadString(new URL(Constants.URL_TD_VERSIONS));
+                // Extract the version number from the output.
+                String[] lines = output.split("\n");
 
-                // Extract the latest version.
-                JSONObject json = (JSONObject) (new JSONParser().parse(releases));
+                long installedVersion = convertVersionNumber(
+                        lines[1]
+                                .substring(1 + lines[1].indexOf(":"))
+                                .trim());
 
-                JSONObject releaseList = Utils.getJsonObject(json, "releases");
-
-                long key = 0L;
-                long latestVersion = 0L;
-
-                for (Object o : releaseList.keySet())
+                try
                 {
-                    key = convertVersionNumber((String) o);
+                    // Get the list of available versions from the pypi server.
+                    String releases = Utils.downloadString(new URL(Constants.URL_TD_VERSIONS));
 
-                    latestVersion = Math.max(key, latestVersion);
-                }
+                    // Extract the latest version.
+                    JSONObject json = (JSONObject) (new JSONParser().parse(releases));
 
-                if (latestVersion > installedVersion)
-                {
-                    // No TD installed so ask to install it.
-                    int input = JOptionPane.showConfirmDialog(
-                            TDGUI.frame,
-                            Constants.STRING_TD_NEW_VERSION,
-                            Constants.STRING_SELECT_OPTION,
-                            JOptionPane.YES_NO_OPTION
-                                                             );
+                    JSONObject releaseList = Utils.getJsonObject(json, "releases");
 
-                    if (input == JOptionPane.YES_OPTION)
+                    long key = 0L;
+                    long latestVersion = 0L;
+
+                    for (Object o : releaseList.keySet())
                     {
-                        // Update
-                        cmd.clear();
-                        cmd.add("pip");
-                        cmd.add("install");
-                        cmd.add("--upgrade");
-                        cmd.add("tradedangerous");
+                        key = convertVersionNumber((String) o);
 
-                        output = Utils.runProcess(cmd);
+                        latestVersion = Math.max(key, latestVersion);
+                    }
 
-                        queueStringImmediate(output);
+                    if (latestVersion > installedVersion)
+                    {
+                        // No TD installed so ask to install it.
+                        int input = JOptionPane.showConfirmDialog(
+                                TDGUI.frame,
+                                Constants.STRING_TD_NEW_VERSION,
+                                Constants.STRING_SELECT_OPTION,
+                                JOptionPane.YES_NO_OPTION
+                                                                 );
+
+                        if (input == JOptionPane.YES_OPTION)
+                        {
+                            // Update
+                            cmd.clear();
+                            cmd.add("pip");
+                            cmd.add("install");
+                            cmd.add("--upgrade");
+                            cmd.add("tradedangerous");
+
+                            output = Utils.runProcess(cmd);
+
+                            queueStringImmediate(output);
+                        }
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                LogClass.log.severe(e.getMessage());
+                catch (Exception e)
+                {
+                    LogClass.log.severe(e.getMessage());
+                }
             }
         }
     }
