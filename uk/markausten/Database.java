@@ -198,6 +198,7 @@ class Database
             catch (SQLException e)
             {
                 LogClass.log.severe(e.getMessage());
+                e.printStackTrace();
             }
             finally
             {
